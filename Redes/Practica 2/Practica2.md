@@ -12,7 +12,9 @@ En esta práctica estudiaremos el funcionamiento del protocolo TCP. Además vere
 
 Configuraremos la topología de red que se muestra en la siguiente figura, igual a la empleada en la práctica anterior.
 
-![Entorno](imagenes/entorno.PNG)
+<p align="center">
+    <img src="imagenes/entorno.PNG">
+</p>
 
 El contenido del fichero de configuración de la topología debe ser el siguiente:
 
@@ -72,6 +74,10 @@ En esta parte usaremos la herramienta `Netcat`, que permite leer y escribir en c
 
 Adjuntar la salida del comando ss correspondiente a los servidores
 
+<p align="center">
+    <img src="imagenes/2-1.png">
+    <img src="imagenes/2-2.png">
+</p>
 
 
 **Ejercicio 3.** (`ESTABLISHED`) En VM2, iniciar una conexión cliente al primer servidor arrancado en el ejercicio anterior usando el comando `nc 192.168.0.1 7777`.
@@ -80,13 +86,17 @@ Iniciar una captura con Wireshark. Intercambiar un único carácter con el clien
 
 Adjuntar la salida del comando ss correspondiente a la conexión y una captura de pantalla de Wireshark
 
-
+<p align="center">
+    <img src="imagenes/3-1.png">
+</p>
 
 **Ejercicio 4.** (`TIME-WAIT`) Cerrar la conexión en el cliente (con `Ctrl+C`) y comprobar el estado de la conexión usando `ss -ta`. Usar la opción `-o` de `ss` para observar el valor del temporizador `TIME-WAIT`.
 
 Adjuntar la salida del comando ss correspondiente a la conexión
 
-
+<p align="center">
+    <img src="imagenes/4.png">
+</p>
 
 **Ejercicio 5.** (`SYN-SENT y SYN-RCVD`) El comando `iptables` permite filtrar paquetes según los flags TCP del segmento con la opción `--tcp-flags` (consultar la página de manual `iptables-extensions`). Usando esta opción:
 - Fijar una regla en el servidor (VM1) que bloquee un mensaje del acuerdo TCP de forma que el cliente (VM2) se quede en el estado `SYN-SENT`. Comprobar el resultado con `ss -ta` en el cliente. 
@@ -98,9 +108,15 @@ Adjuntar los comandos iptables utilizados y la salida del comando ss correspondi
 
     iptables -A INPUT -p tcp --tcp-flags SYN SYN -j DROP
     
+<p align="center">
+    <img src="imagenes/5-1.png">
+</p>    
+    
     iptables -A OUTPUT -p tcp --tcp-flags ALL ACK -j DROP
 
- 
+<p align="center">
+    <img src="imagenes/5-2.png">
+</p>
 
 
 **Ejercicio 6.** Iniciar una captura con Wireshark. Intentar una conexión a un puerto cerrado del servidor (ej. 7778) y observar los mensajes TCP intercambiados, especialmente los flags TCP.
@@ -109,7 +125,9 @@ Adjuntar los comandos iptables utilizados y la salida del comando ss correspondi
 
 Adjuntar una captura de pantalla de Wireshark
 
-
+<p align="center">
+    <img src="imagenes/6-1.png">
+</p>
 
 ## Introducción a la seguridad en el protocolo TCP
 
@@ -151,7 +169,14 @@ Adjuntar los comandos nc utilizados y su salida
     nc -z -v 192.168.0.1 7779
     nc -z -v 192.168.0.1 7780
 
-
+<p align="center">
+    <img src="imagenes/8-1.png">
+    <img src="imagenes/8-2.png">
+    <img src="imagenes/8-3.png">
+    <img src="imagenes/8-4.png">
+    <img src="imagenes/8-5.png">
+    <img src="imagenes/8-6.png">
+</p>
 
 
 
@@ -184,7 +209,9 @@ El comportamiento de la conexión TCP se puede controlar con varias opciones que
 
 Adjuntar una captura de pantalla de Wireshark donde se muestren las opciones TCP
 
-
+<p align="center">
+    <img src="imagenes/10.png">
+</p>
 
 **Ejercicio 11.** Con ayuda del comando `sysctl` y la bibliografía recomendada, completar la siguiente tabla con parámetros que permiten configurar el temporizador `keepalive`:
 
@@ -214,7 +241,9 @@ Adjuntar el comando iptables utilizado y una captura de pantalla de Wireshark
     
     sudo ping 172.16.0.1
 
-
+<p align="center">
+    <img src="imagenes/12.png">
+</p>
 
 
 **Ejercicio 13.** ¿Qué parámetro se utiliza, en lugar del puerto origen, para relacionar las solicitudes con las respuestas? Comprueba la salida del comando `conntrack -L` o, alternativamente, el fichero `/proc/net/nf_conntrack`.
@@ -250,4 +279,6 @@ Adjuntar el comando iptables utilizado y una captura de pantalla de Wireshark
     Ncat: Connected to 172.16.0.2:80.
     Ncat: 0 bytes sent, 0 bytes received in 0.02 seconds.
 
-
+<p align="center">
+    <img src="imagenes/14.png">
+</p>
