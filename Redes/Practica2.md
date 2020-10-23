@@ -31,6 +31,36 @@ Finalmente, configurar la red de todas las máquinas de la red según la siguien
 | Router-VM3   | 192.168.0.3/24 y 172.16.0.3/16 | Activar el `forwarding` de paquetes            |
 | VM4          | 172.16.0.4/16                  | Añadir Router como encaminador por defecto     |
 
+***VM1***
+
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.1/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip route add default via 192.168.0.3
+        
+***VM2***
+
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.2/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip route add default via 192.168.0.3
+        
+***VM3 (Router)***
+
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.3/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip addr add 172.16.0.2/16 broadcast 172.16.255.255 dev eth1
+        sudo ip link set eth1 up
+        sudo sysctl net.ipv4.ip_forward=1
+        
+***VM4***
+
+        sudo ip link set lo down
+        sudo ip addr add 172.16.0.1/16 broadcast 172.16.255.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip route add default via 172.16.0.2
+
 
 ## Estados de una conexión TCP
 
