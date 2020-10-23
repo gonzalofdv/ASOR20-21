@@ -92,6 +92,8 @@ Adjuntar la salida del comando ss correspondiente a la conexión
 - Fijar una regla en el servidor (VM1) que bloquee un mensaje del acuerdo TCP de forma que el cliente (VM2) se quede en el estado `SYN-SENT`. Comprobar el resultado con `ss -ta` en el cliente. 
 - Borrar la regla anterior y fijar otra en el cliente que bloquee un mensaje del acuerdo TCP de forma que el servidor se quede en el estado `SYN-RCVD`. Comprobar el resultado con `ss -ta` en el servidor. Además, esta regla debe dejar al servidor también en el estado `LAST-ACK` después de cerrar la conexión (con `Ctrl+C`) en el cliente. Usar la opción `-o` de `ss` para determinar cuántas retransmisiones se realizan y con qué frecuencia.
 
+        nc 192.168.0.1 7777
+
 Adjuntar los comandos iptables utilizados y la salida del comando ss correspondiente a las conexiones
 
     iptables -A INPUT -p tcp --tcp-flags SYN SYN -j DROP
@@ -102,6 +104,8 @@ Adjuntar los comandos iptables utilizados y la salida del comando ss correspondi
 
 
 **Ejercicio 6.** Iniciar una captura con Wireshark. Intentar una conexión a un puerto cerrado del servidor (ej. 7778) y observar los mensajes TCP intercambiados, especialmente los flags TCP.
+
+        nc 192.168.0.1 7778
 
 Adjuntar una captura de pantalla de Wireshark
 
