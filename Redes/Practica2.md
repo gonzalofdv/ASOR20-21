@@ -12,7 +12,7 @@ En esta práctica estudiaremos el funcionamiento del protocolo TCP. Además vere
 
 Configuraremos la topología de red que se muestra en la siguiente figura, igual a la empleada en la práctica anterior.
 
-
+![Entorno](imágenes/entorno.png)
 
 El contenido del fichero de configuración de la topología debe ser el siguiente:
 
@@ -30,6 +30,36 @@ Finalmente, configurar la red de todas las máquinas de la red según la siguien
 | VM2          |192.168.0.2/24                  | Añadir Router como encaminador por defecto     |
 | Router-VM3   | 192.168.0.3/24 y 172.16.0.3/16 | Activar el `forwarding` de paquetes            |
 | VM4          | 172.16.0.4/16                  | Añadir Router como encaminador por defecto     |
+
+***VM1***
+
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.1/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip route add default via 192.168.0.3
+        
+***VM2***
+
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.2/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip route add default via 192.168.0.3
+        
+***VM3 (Router)***
+
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.3/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip addr add 172.16.0.2/16 broadcast 172.16.255.255 dev eth1
+        sudo ip link set eth1 up
+        sudo sysctl net.ipv4.ip_forward=1
+        
+***VM4***
+
+        sudo ip link set lo down
+        sudo ip addr add 172.16.0.1/16 broadcast 172.16.255.255 dev eth0
+        sudo ip link set eth0 up
+        sudo ip route add default via 172.16.0.2
 
 
 ## Estados de una conexión TCP
@@ -62,6 +92,8 @@ Adjuntar la salida del comando ss correspondiente a la conexión
 - Fijar una regla en el servidor (VM1) que bloquee un mensaje del acuerdo TCP de forma que el cliente (VM2) se quede en el estado `SYN-SENT`. Comprobar el resultado con `ss -ta` en el cliente. 
 - Borrar la regla anterior y fijar otra en el cliente que bloquee un mensaje del acuerdo TCP de forma que el servidor se quede en el estado `SYN-RCVD`. Comprobar el resultado con `ss -ta` en el servidor. Además, esta regla debe dejar al servidor también en el estado `LAST-ACK` después de cerrar la conexión (con `Ctrl+C`) en el cliente. Usar la opción `-o` de `ss` para determinar cuántas retransmisiones se realizan y con qué frecuencia.
 
+        nc 192.168.0.1 7777
+
 Adjuntar los comandos iptables utilizados y la salida del comando ss correspondiente a las conexiones
 
     iptables -A INPUT -p tcp --tcp-flags SYN SYN -j DROP
@@ -72,6 +104,8 @@ Adjuntar los comandos iptables utilizados y la salida del comando ss correspondi
 
 
 **Ejercicio 6.** Iniciar una captura con Wireshark. Intentar una conexión a un puerto cerrado del servidor (ej. 7778) y observar los mensajes TCP intercambiados, especialmente los flags TCP.
+
+        nc 192.168.0.1 7778
 
 Adjuntar una captura de pantalla de Wireshark
 
@@ -90,7 +124,7 @@ Repetir el ejercicio desactivando el mecanismo SYN cookies en el servidor con el
 
 Adjuntar los comandos iptables y hping3 utilizados. Describir el comportamiento de la máquina con y sin el mecanismo SYN cookies
     
-    sudo iptables -A INPUT -p tcp --tcp-flags ALL SYN, ACK -j DROP
+    sudo iptables -A INPUT -p tcp --tcp-flags ALL SYN,ACK -j DROP
     sudo hping3 --flood --syn -p 22 192.168.0.1
 
     Al realizar el envío masivo de mensajes TCP es tan grande el volumen que la máquina no responde correctamente y wireshark se bloquea.
@@ -104,8 +138,18 @@ Adjuntar los comandos iptables y hping3 utilizados. Describir el comportamiento 
 
 Adjuntar los comandos nc utilizados y su salida
 
+***VM1***
+
     nc -l -p 7777
-    nc -z -v 192.168.0.1 7775 ----- repetir este comando con el resto de puertos
+    
+***VM2***
+
+    nc -z -v 192.168.0.1 7775
+    nc -z -v 192.168.0.1 7776
+    nc -z -v 192.168.0.1 7777
+    nc -z -v 192.168.0.1 7778
+    nc -z -v 192.168.0.1 7779
+    nc -z -v 192.168.0.1 7780
 
 
 
@@ -129,6 +173,14 @@ El comportamiento de la conexión TCP se puede controlar con varias opciones que
 | net.ipv4.tcp_sack           |  Si se pierden paquetes, solo se retransmiten estos y no toda la secuencia | 1                     |
 
 **Ejercicio 10.** Iniciar una captura de Wireshark. Abrir el servidor en el puerto 7777 y realizar una conexión desde la VM cliente. Estudiar el valor de las opciones que se intercambian durante la conexión. Variar algunos de los parámetros anteriores (ej. no usar ACKs selectivos) y observar el resultado en una nueva conexión.
+
+**VM1**
+
+        nc -l 7777
+        
+**VM2**
+
+        nc -z -v 192.168.0.1 7777
 
 Adjuntar una captura de pantalla de Wireshark donde se muestren las opciones TCP
 
@@ -154,8 +206,13 @@ En esta sección supondremos que la red que conecta Router con VM4 es pública y
 
 Adjuntar el comando iptables utilizado y una captura de pantalla de Wireshark
 
-    **Router:** sudo iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
-    **VM1:** sudo ping 172.16.0.1
+**Router:**
+
+    sudo iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth1 -j MASQUERADE
+    
+**VM1:** 
+    
+    sudo ping 172.16.0.1
 
 
 
@@ -164,10 +221,10 @@ Adjuntar el comando iptables utilizado y una captura de pantalla de Wireshark
 
 Adjuntar la salida del comando conntrack y responder a la pregunta
 
-    [cursoredes@localhost ~]$ sudo conntrack -L
-    conntrack v1.4.4 (conntrack-tools): 0 flow entries have been shown.
+        [cursoredes@localhost ~]$ sudo conntrack -L
+        icmp     1 3 src=192.168.0.1 dst=172.16.0.1 type=8 code=0 id=3547 src=172.16.0.1 dst=172.16.0.2 type=0 code=0 id=3547 mark=0 use=1
+        conntrack v1.4.4 (conntrack-tools): 1 flow entries have been shown.
 
-    No me funciona y no entiendo por qué, tras preguntar dudas a compañeros, en teoría lo estoy haciendo bien
 
 
 **Ejercicio 14.** Acceso a un servidor en la red privada:
@@ -178,7 +235,19 @@ Adjuntar la salida del comando conntrack y responder a la pregunta
 
 Adjuntar el comando iptables utilizado y una captura de pantalla de Wireshark
 
+**Router**
+
     sudo iptables -t nat -A PREROUTING -d 172.16.0.2 -p tcp --dport 80 -j DNAT --to 192.168.0.1:7777
 
-    Me aparece connection refused
+**VM4**
+
+    nc -z -v 172.16.0.2 80
+    
+**Salida**
+
+    [cursoredes@localhost ~]$ nc -z -v 172.16.0.2 80
+    Ncat: Version 7.50 ( https://nmap.org/ncat )
+    Ncat: Connected to 172.16.0.2:80.
+    Ncat: 0 bytes sent, 0 bytes received in 0.02 seconds.
+
 
