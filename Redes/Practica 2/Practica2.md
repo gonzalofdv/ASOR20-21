@@ -12,7 +12,7 @@ En esta práctica estudiaremos el funcionamiento del protocolo TCP. Además vere
 
 Configuraremos la topología de red que se muestra en la siguiente figura, igual a la empleada en la práctica anterior.
 
-![Entorno](imagenes/entorno.png)
+![Entorno](../Redes/Practica2/imagenes/entorno.png)
 
 El contenido del fichero de configuración de la topología debe ser el siguiente:
 
