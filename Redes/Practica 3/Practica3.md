@@ -291,7 +291,9 @@ Copiar una captura de Wireshark con los mensajes DNS.
         dig mx labfdi.es (este no me ha funcionado)
 
 
-
+<p align="center">
+    <img src="imagenes/11.png">
+</p>
 
 
 ## Zona inversa (reverse)
