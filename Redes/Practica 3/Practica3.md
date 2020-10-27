@@ -150,190 +150,209 @@ Copiar el comando utilizado y su salida.
 
 
 ## Servidor DNS
-**Preparación del entorno**
+### Preparación del entorno
 
 Para esta parte, configuraremos la topología de red que se muestra en la siguiente figura:
 
-Como en prácticas anteriores, construiremos la topología con la herramienta vtopol y un fichero de topología adecuado. Configurar cada interfaz de red como se indica en la figura y comprobar la conectividad entre las máquinas.
-Comandos para preparar el entorno:
-VM1:
-sudo ip link set lo down
-sudo ip addr add 192.168.0.1/24 broadcast 192.168.0.255 dev eth0
-sudo ip link set eth0 up
-VM2:
-sudo ip link set lo down
-sudo ip addr add 192.168.0.100/24 broadcast 192.168.0.255 dev eth0
-sudo ip link set eth0 up
-Zona directa (forward)
-La máquina VM1 actuará como servidor de nombres del dominio labfdi.es. La mayoría de los registros se incluyen en la zona directa.
-Ejercicio 7. Configurar el servidor de nombres añadiendo una entrada zone para la zona directa en el fichero /etc/named.conf. El tipo de servidor de la zona debe ser master y el fichero que define la zona, db.labfdi.es. Por ejemplo:
-zone "labfdi.es." {
-  type master;
-  file "db.labfdi.es";
-};
-Revisar la configuración por defecto y consultar la página de manual de named.conf para ver las opciones disponibles para el servidor y las zonas. La recursión debe estar deshabilitada en servidores autoritativos (opción recursion) y no deben restringirse las consultas (opción allow-query). Una vez creado el fichero, ejecutar el comando named-checkconf para comprobar que la sintaxis es correcta.
-En el fichero /etc/named.conf:
-Comentado la linea de allow-query y cambiado recursion de “yes” a “no”
+<p align="center">
+    <img src="imagenes/entorno.PNG">
+</p>
 
-Ejercicio 8. Crear el fichero de la zona directa labfdi.es. en /var/named/db.labfdi.es con los registros especificados en la siguiente tabla. Especificar también la directiva $TTL. 
-Registro
-Descripción
-Start of Authority (SOA)
-Elegir libremente los valores de refresh, update, expiry y nx ttl. El servidor primario es ns.labfdi.es y el e-mail de contacto es contact@labfdi.es.
-Servidor de nombres (NS)
-El servidor de nombres es ns.labfdi.es, como se especifica en el registro SOA
-Dirección (A) del servidor de nombres
-La dirección de ns.labfdi.es es 192.168.0.1 (VM1)
-Direcciones (A y AAAA) del servidor web
-Las direcciones de www.labfdi.es son 192.168.0.200 y fd00::1
-Servidor de correo (MX)
-El servidor de correo es mail.labfdi.es
-Dirección (A) del servidor de correo
-La dirección de mail.labfdi.es es 192.168.0.250
-Nombre canónico (CNAME) de servidor
-correo.labfdi.es es un alias de mail.labfdi.es
-Una vez generado el fichero de zona, se debe comprobar su integridad con el comando named-checkzone <nombre_zona> <fichero>. Finalmente, arrancar el servicio DNS con el comando service named start.
-Nota: No olvidar que los nombres FQDN terminan en el dominio raíz (“.”). El nombre de la zona puede especificarse con @ en el nombre del registro.
+Como en prácticas anteriores, construiremos la topología con la herramienta vtopol y un fichero de topología adecuado. Configurar cada interfaz de red como se indica en la figura y comprobar la conectividad entre las máquinas.
+
+### Comandos para preparar el entorno:
+### VM1:
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.1/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+### VM2:
+        sudo ip link set lo down
+        sudo ip addr add 192.168.0.100/24 broadcast 192.168.0.255 dev eth0
+        sudo ip link set eth0 up
+        
+### Zona directa (forward)
+
+La máquina VM1 actuará como servidor de nombres del dominio `labfdi.es.` La mayoría de los registros se incluyen en la zona directa.
+**Ejercicio 7.** Configurar el servidor de nombres añadiendo una entrada zone para la zona directa en el fichero `/etc/named.conf`. El tipo de servidor de la zona debe ser `master` y el fichero que define la zona, `db.labfdi.es.` Por ejemplo:
+
+        zone "labfdi.es." {
+          type master;
+          file "db.labfdi.es";
+        };
+        
+Revisar la configuración por defecto y consultar la página de manual de `named.conf` para ver las opciones disponibles para el servidor y las zonas. La recursión debe estar deshabilitada en servidores autoritativos (opción recursion) y no deben restringirse las consultas (opción allow-query). Una vez creado el fichero, ejecutar el comando named-checkconf para comprobar que la sintaxis es correcta.
+
+**En el fichero /etc/named.conf:**
+
+        Comentado la linea de allow-query y cambiado recursion de “yes” a “no”
+
+**Ejercicio 8.** Crear el fichero de la zona directa labfdi.es. en `/var/named/db.labfdi.es` con los registros especificados en la siguiente tabla. Especificar también la directiva $TTL. 
+
+| **Registro**       | **Descripción**   |
+| ------------       | ----------------- |
+| Start of Authority (SOA) | Elegir libremente los valores de refresh, update, expiry y nx ttl. El servidor primario es ns.labfdi.es y el e-mail de contacto es contact@labfdi.es.  |
+| Servidor de nombres (NS) | El servidor de nombres es ns.labfdi.es, como se especifica en el registro SOA |
+| Dirección (A) del servidor de nombres | La dirección de ns.labfdi.es es 192.168.0.1 (VM1) |
+| Direcciones (A y AAAA) del servidor web | Las direcciones de www.labfdi.es son 192.168.0.200 y fd00::1 |
+| Servidor de correo (MX) | El servidor de correo es mail.labfdi.es |
+| Dirección (A) del servidor de correo | La dirección de mail.labfdi.es es 192.168.0.250 |
+| Nombre canónico (CNAME) de servidor | correo.labfdi.es es un alias de mail.labfdi.es |
+
+
+Una vez generado el fichero de zona, se debe comprobar su integridad con el comando `named-checkzone <nombre_zona> <fichero>`. Finalmente, arrancar el servicio DNS con el comando `service named start`.
+    
+**Nota:** No olvidar que los nombres FQDN terminan en el dominio raíz (“.”). El nombre de la zona puede especificarse con @ en el nombre del registro.
+
 Copiar el fichero de la zona directa.
 
-Contenido fichero /var/named/db.labfdi.es:
+        Contenido fichero /var/named/db.labfdi.es:
 
-$TTL    2d
-labfdi.es. 	IN	SOA     ns.labfdi.es. contact@labfdi.es. (
-                        2003004         ; Serial
-                        3h              ; Refresh
-                        14M             ; Update retry
-                        3W12h           ; Expire
-                        2h20M           ; nx TTL
-                        )
-                IN	NS	ns.labfdi.es.
-ns.labfdi.es.   IN	A	192.168.0.1
-www.labfdi.es.  IN	A	192.168.0.200
-www.labfdi.es.  IN	AAAA    fd00::1
- labfdi.es           IN	MX	10	mail.labfdi.es.
-mail.labfdi.es. IN	A	192.168.0.250
-correo.labfdi.es.       IN      CNAME   mail.labfdi.es.
-
-
-Comprobar integridad:
-
-sudo named-checkzone labfdi.es /var/named/db.labfdi.es
-
-Después:
-
-Service named start
+        $TTL    2d
+        labfdi.es. 	IN	SOA     ns.labfdi.es. contact@labfdi.es. (
+                                2003004         ; Serial
+                                3h              ; Refresh
+                                14M             ; Update retry
+                                3W12h           ; Expire
+                                2h20M           ; nx TTL
+                                )
+                        IN	NS	ns.labfdi.es.
+        ns.labfdi.es.   IN	A	192.168.0.1
+        www.labfdi.es.  IN	A	192.168.0.200
+        www.labfdi.es.  IN	AAAA    fd00::1
+         labfdi.es           IN	MX	10	mail.labfdi.es.
+        mail.labfdi.es. IN	A	192.168.0.250
+        correo.labfdi.es.       IN      CNAME   mail.labfdi.es.
 
 
-Ejercicio 9. Configurar la máquina virtual cliente para que use el nuevo servidor de nombres. Para ello, crear o modificar /etc/resolv.conf con los nuevos valores para nameserver y search.
+        Comprobar integridad:
+
+        sudo named-checkzone labfdi.es /var/named/db.labfdi.es
+
+        Después:
+
+        Service named start
+
+
+**Ejercicio 9.** Configurar la máquina virtual cliente para que use el nuevo servidor de nombres. Para ello, crear o modificar `/etc/resolv.conf` con los nuevos valores para `nameserver` y `search`.
+
 Copiar el fichero de configuración del cliente.
 
-Fichero:
+        Fichero:
 
-; generated by /usr/sbin/dhclient-script
-search ns.labfdi.es
-nameserver 192.168.0.1
+        ; generated by /usr/sbin/dhclient-script
+        search ns.labfdi.es
+        nameserver 192.168.0.1
 
 
-Ejercicio 10. Usar el comando dig en el cliente para obtener la información del dominio labfdi.es.
+**Ejercicio 10.** Usar el comando dig en el cliente para obtener la información del dominio `labfdi.es`.
+
 Copiar el comando utilizado y su salida.
-Comando: dig soa labfdi.es
-Salida:
-; <<>> DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 <<>> soa labfdi.es
-;; global options: +cmd
-;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14782
-;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
-;; WARNING: recursion requested but not available
 
-;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;labfdi.es.			IN	SOA
+        Comando: dig soa labfdi.es
+        
+        Salida:
+        ; <<>> DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 <<>> soa labfdi.es
+        ;; global options: +cmd
+        ;; Got answer:
+        ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14782
+        ;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+        ;; WARNING: recursion requested but not available
 
-;; ANSWER SECTION:
-labfdi.es.		172800	IN	SOA	ns.labfdi.es. contact\@labfdi.es. 2003004 10800 840 1857600 8400
+        ;; OPT PSEUDOSECTION:
+        ; EDNS: version: 0, flags:; udp: 4096
+        ;; QUESTION SECTION:
+        ;labfdi.es.			IN	SOA
 
-;; AUTHORITY SECTION:
-labfdi.es.		172800	IN	NS	ns.labfdi.es.
+        ;; ANSWER SECTION:
+        labfdi.es.		172800	IN	SOA	ns.labfdi.es. contact\@labfdi.es. 2003004 10800 840 1857600 8400
 
-;; ADDITIONAL SECTION:
-ns.labfdi.es.		172800	IN	A	192.168.0.1
+        ;; AUTHORITY SECTION:
+        labfdi.es.		172800	IN	NS	ns.labfdi.es.
 
-;; Query time: 1 msec
-;; SERVER: 192.168.0.1#53(192.168.0.1)
-;; WHEN: Mon Oct 26 16:23:38 CET 2020
-;; MSG SIZE  rcvd: 122
+        ;; ADDITIONAL SECTION:
+        ns.labfdi.es.		172800	IN	A	192.168.0.1
+
+        ;; Query time: 1 msec
+        ;; SERVER: 192.168.0.1#53(192.168.0.1)
+        ;; WHEN: Mon Oct 26 16:23:38 CET 2020
+        ;; MSG SIZE  rcvd: 122
 
 
-Ejercicio 11. Realizar más consultas y, con la ayuda de wireshark:
-Comprobar el protocolo y puerto usado por el cliente y servidor DNS
-Estudiar el formato (campos incluidos y longitud) de los mensajes correspondientes a las preguntas y respuestas DNS.
+**Ejercicio 11.** Realizar más consultas y, con la ayuda de wireshark:
+- Comprobar el protocolo y puerto usado por el cliente y servidor DNS
+- Estudiar el formato (campos incluidos y longitud) de los mensajes correspondientes a las preguntas y respuestas DNS.
+
 Copiar una captura de Wireshark con los mensajes DNS.
 
-Inicio captura en VM1 (por ejemplo) y realizo consulta con comandos:
+        Inicio captura en VM1 (por ejemplo) y realizo consulta con comandos:
 
-dig soa labfdi.es.
-dig www.labfdi.es
-dig mx labfdi.es (este no me ha funcionado)
-
-
+        dig soa labfdi.es.
+        dig www.labfdi.es
+        dig mx labfdi.es (este no me ha funcionado)
 
 
 
-Zona inversa (reverse)
+
+
+## Zona inversa (reverse)
+
 Además, el servidor incluirá una base de datos para la búsqueda inversa. La zona inversa contiene los registros PTR correspondientes a las direcciones IP.
-Ejercicio 12. Añadir otra entrada zone para la zona inversa 0.168.192.in-addr.arpa. en /etc/named.conf. El tipo de servidor de la zona debe ser master y el fichero que define la zona, db.0.168.192.
 
+**Ejercicio 12.** Añadir otra entrada zone para la zona inversa `0.168.192.in-addr.arpa.` en `/etc/named.conf`. El tipo de servidor de la zona debe ser master y el fichero que define la zona, `db.0.168.192`.
 
-Solución:
+        Solución:
 
-zone "0.168.192.in-addr.arpa." {
-        type master;
-        file "db.0.168.192";
-};
+        zone "0.168.192.in-addr.arpa." {
+                type master;
+                file "db.0.168.192";
+        };
 
-Ejercicio 13. Crear el fichero de la zona inversa en /var/named/db.0.168.192 con los registros SOA, NS y PTR. Esta zona usará el mismo servidor de nombres y parámetros de configuración en el registro SOA. Después, reiniciar el servicio DNS con el comando service named restart (o bien, recargar la configuración con el comando service named reload).
+**Ejercicio 13.** Crear el fichero de la zona inversa en `/var/named/db.0.168.192` con los registros SOA, NS y PTR. Esta zona usará el mismo servidor de nombres y parámetros de configuración en el registro SOA. Después, reiniciar el servicio DNS con el comando `service named restart` (o bien, recargar la configuración con el comando `service named reload`).
+
 Copiar el fichero de la zona inversa.
 
 Solución:
 
-$TTL    604800
-0.168.192.in-addr.arpa. IN	SOA     ns.labfdi.es    contact.labfdi.es. (
-                                2	; Serial
-                                604800  ; Refresh
-                                86400   ; Retry
-                                2419200 ; Expire
-                                604800  ; nx TTL
-                                )
-@                       IN	NS	ns.labfdi.es.
-@                       IN	PTR     ns.labfdi.es.
-1                        IN	                PTR     ns.labfdi.es.
-200                     IN	PTR     labfdi.es.
-250                     IN	PTR     mail.labfdi.es.
+        $TTL    604800
+        0.168.192.in-addr.arpa. IN	SOA     ns.labfdi.es    contact.labfdi.es. (
+                                        2	; Serial
+                                        604800  ; Refresh
+                                        86400   ; Retry
+                                        2419200 ; Expire
+                                        604800  ; nx TTL
+                                        )
+        @                       IN	NS	ns.labfdi.es.
+        @                       IN	PTR     ns.labfdi.es.
+        1                        IN	                PTR     ns.labfdi.es.
+        200                     IN	PTR     labfdi.es.
+        250                     IN	PTR     mail.labfdi.es.
 
 
-Ejercicio 14. Comprobar el funcionamiento de la resolución inversa, obteniendo el nombre asociado a la dirección 192.168.0.250.
+**Ejercicio 14.** Comprobar el funcionamiento de la resolución inversa, obteniendo el nombre asociado a la dirección 192.168.0.250.
+
 Copiar el comando utilizado y su salida.
-En VM2: dig  250.0.168.192.in-addr.arpa.
-; <<>> DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 <<>> 250.0.168.192.in-addr.arpa.
-;; global options: +cmd
-;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3681
-;; flags: qr aa rd; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
-;; WARNING: recursion requested but not available
 
-;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
-;; QUESTION SECTION:
-;250.0.168.192.in-addr.arpa.	IN	A
+        En VM2: dig  250.0.168.192.in-addr.arpa.
 
-;; AUTHORITY SECTION:
-0.168.192.in-addr.arpa.	604800	IN	SOA	ns.labfdi.es.0.168.192.in-addr.arpa. contact.labfdi.es. 2 604800 86400 2419200 604800
+        ; <<>> DiG 9.9.4-RedHat-9.9.4-61.el7_5.1 <<>> 250.0.168.192.in-addr.arpa.
+        ;; global options: +cmd
+        ;; Got answer:
+        ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3681
+        ;; flags: qr aa rd; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+        ;; WARNING: recursion requested but not available
 
-;; Query time: 0 msec
-;; SERVER: 192.168.0.1#53(192.168.0.1)
-;; WHEN: Mon Oct 26 17:29:26 CET 2020
-;; MSG SIZE  rcvd: 121
+        ;; OPT PSEUDOSECTION:
+        ; EDNS: version: 0, flags:; udp: 4096
+        ;; QUESTION SECTION:
+        ;250.0.168.192.in-addr.arpa.	IN	A
+
+        ;; AUTHORITY SECTION:
+        0.168.192.in-addr.arpa.	604800	IN	SOA	ns.labfdi.es.0.168.192.in-addr.arpa. contact.labfdi.es. 2 604800 86400 2419200 604800
+
+        ;; Query time: 0 msec
+        ;; SERVER: 192.168.0.1#53(192.168.0.1)
+        ;; WHEN: Mon Oct 26 17:29:26 CET 2020
+        ;; MSG SIZE  rcvd: 121
 
 
 
