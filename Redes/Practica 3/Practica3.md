@@ -173,6 +173,7 @@ Como en prácticas anteriores, construiremos la topología con la herramienta vt
 ### Zona directa (forward)
 
 La máquina VM1 actuará como servidor de nombres del dominio `labfdi.es.` La mayoría de los registros se incluyen en la zona directa.
+
 **Ejercicio 7.** Configurar el servidor de nombres añadiendo una entrada zone para la zona directa en el fichero `/etc/named.conf`. El tipo de servidor de la zona debe ser `master` y el fichero que define la zona, `db.labfdi.es.` Por ejemplo:
 
         zone "labfdi.es." {
