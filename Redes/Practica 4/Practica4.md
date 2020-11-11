@@ -48,6 +48,10 @@ Copiar el comando utilizados y su salida. Copiar una captura de pantalla de Wire
       --- fe80::a00:27ff:fe79:56e5 ping statistics ---
       5 packets transmitted, 5 received, 0% packet loss, time 4005ms
       rtt min/avg/max/mdev = 0.638/1.094/1.669/0.354 ms
+      
+<p align="center">
+   <img src="imagenes/2.png">
+</p>
 
 
 **Ejercicio 3 [Router, VM4].** Activar el interfaz de VM4 y los dos interfaces de Router. Comprobar la conectividad entre Router y VM1, y entre Router y VM4 usando la dirección de enlace local.
@@ -106,7 +110,9 @@ Copiar los comandos utilizados.
 
     ping6 fd00:0:0:a::2 -I eth0
 
- 
+<p align="center">
+   <img src="imagenes/5.png">
+</p> 
 
 **Ejercicio 6 [Router, VM4].** Configurar direcciones ULA en los dos interfaces de Router (redes `fd00:0:0:a::/64` y `fd00:0:0:b::/64`) y en el de VM4 (red `fd00:0:0:b::/64`). Elegir el identificador de interfaz de forma que no coincida dentro de la misma red.
 
@@ -230,7 +236,13 @@ Copiar los comandos utilizados y su salida.
 
 Copiar dos capturas de pantalla de Wireshark.
 
+<p align="center">
+   <img src="imagenes/11-1.png">
+</p>
 
+<p align="center">
+   <img src="imagenes/11-2.png">
+</p>
 
 ## Configuración persistente
 
@@ -302,6 +314,16 @@ Finalmente, arrancar el servicio con el comando `service zebra start`.
 
 Copiar la dirección asignada.
 
+        Comando: sudo ip link set eth0 up
+
+        Ip aadr list:
+
+        2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+            link/ether 08:00:27:9c:52:23 brd ff:ff:ff:ff:ff:ff
+            inet6 fd00::b:a00:27ff:fe9c:5223/64 scope global mngtmpaddr dynamic 
+               valid_lft 2591999sec preferred_lft 604799sec
+            inet6 fe80::a00:27ff:fe9c:5223/64 scope link 
+               valid_lft forever preferred_lft forever
 
 
 **Ejercicio 17 [VM1, VM2].** Estudiar los mensajes del protocolo de descubrimiento de vecinos:
@@ -311,7 +333,39 @@ Copiar la dirección asignada.
 
 Copiar una captura de pantalla de Wireshark.
 
+        [cursoredes@localhost ~]$ ip maddr
 
+        1:	lo
+            inet  224.0.0.1
+            inet6 ff02::1
+            inet6 ff01::1
+        2:	eth0
+            link  33:33:00:00:00:01
+            link  01:00:5e:00:00:01
+            link  33:33:ff:2a:9b:16
+            inet  224.0.0.1
+            inet6 ff02::1:ff2a:9b16 users 2
+            inet6 ff02::1
+            inet6 ff01::1
+
+
+        [cursoredes@localhost ~]$ ip maddr
+        1:	lo
+            inet  224.0.0.1
+            inet6 ff02::1
+            inet6 ff01::1
+        2:	eth0
+            link  33:33:00:00:00:01
+            link  01:00:5e:00:00:01
+            link  33:33:ff:79:56:e5
+            inet  224.0.0.1
+            inet6 ff02::1:ff79:56e5 users 2
+            inet6 ff02::1
+            inet6 ff01::1
+            
+ <p align="center">
+   <img src="imagenes/17.png">
+</p>           
 
 Para saber más… En el proceso de autoconfiguración se genera también el identificador de interfaz según el Extended Unique Identifier (EUI-64) que se describe en el RFC 4193. La configuración del protocolo de anuncio de encaminadores tiene múltiples opciones que se pueden consultar en la documentación de zebra (ej. intervalo entre anuncios no solicitados). Cuando sólo se necesita un servicio que implemente el anuncio de prefijos, y no algoritmos de encaminamiento para el router, se puede usar el proyecto de código libre Router Advertisement Daemon, radvd.
 
@@ -319,16 +373,20 @@ Para saber más… En el proceso de autoconfiguración se genera también el ide
 
 Copiar la dirección asignada.
 
+        inet6 fd00::a:bd84:46b5:5e6b:ce87/64 scope global temporary dynamic
 
+## ICMPv6
 
-ICMPv6
 El protocolo ICMPv6 permite el intercambio de mensajes para el control de la red, tanto para la detección de errores como para la consulta de la configuración de ésta. Durante el desarrollo de la práctica hemos visto los más importantes.
-Ejercicio 19. Generar mensajes de los siguientes tipos en la red y estudiarlos con ayuda de Wireshark:
-Solicitud y respuesta de eco.
-Solicitud y anuncio de encaminador.
-Solicitud y anuncio de vecino.
-Destino inalcanzable - Sin ruta al destino (Code: 0).
-Destino inalcanzable - Dirección destino inalcanzable (Code: 3)
+
+**Ejercicio 19.** Generar mensajes de los siguientes tipos en la red y estudiarlos con ayuda de Wireshark:
+
+- Solicitud y respuesta de eco.
+- Solicitud y anuncio de encaminador.
+- Solicitud y anuncio de vecino.
+- Destino inalcanzable - Sin ruta al destino (Code: 0).
+- Destino inalcanzable - Dirección destino inalcanzable (Code: 3)
+
 Copiar capturas de pantalla de Wireshark con los dos últimos mensajes.
 
 
