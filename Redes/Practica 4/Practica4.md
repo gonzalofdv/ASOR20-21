@@ -9,7 +9,7 @@ En esta práctica se estudian los aspectos básicos del protocolo IPv6, el manej
 Configuraremos la topología de red que se muestra en la siguiente figura:
 
 <p align="center">
-    <img src="imagenes/entorno.PNG">
+    <img src="imagenes/Entorno.PNG">
 </p>
 
 El fichero de configuración de la topología tendría el siguiente contenido:
