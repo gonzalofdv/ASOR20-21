@@ -3,12 +3,10 @@
 **Objetivos**
 
 En esta práctica se afianzan los conceptos elementales del encaminamiento. En particular, se estudia un protocolo de encaminamiento interior y otro exterior: RIP (Routing Information Protocol) y BGP (Border Gateway Protocol).
-Existen muchas implementaciones de los protocolos de encaminamiento. En esta práctica vamos a utilizar Quagga, que actualmente implementa RIP (versiones 1 y 2), RIPng, OSPF, OSPFv3, IS-IS y BGP. Quagga está estructurado en diferentes servicios (uno para cada protocolo) controlados por un servicio central (Zebra) que hace de interfaz entre la tabla de encaminamiento del kernel y la información de encaminamiento de cada protocolo.
-Todos los ficheros de configuración han de almacenarse en el directorio `/etc/quagga`. La sintaxis de estos ficheros es sencilla y está disponible en http://quagga.net. Revisar especialmente la correspondiente a RIP y BGP en https://www.quagga.net/docs/quagga.html. Además, en `/usr/share/doc/quagga-0.99.22.4` hay ficheros de ejemplo.
 
-Activar el portapapeles bidireccional (menú Dispositivos) en las máquinas virtuales.
-Usar la opción de Virtualbox (menú Ver) para realizar capturas de pantalla.
-La contraseña del usuario cursoredes es cursoredes.
+Existen muchas implementaciones de los protocolos de encaminamiento. En esta práctica vamos a utilizar Quagga, que actualmente implementa RIP (versiones 1 y 2), RIPng, OSPF, OSPFv3, IS-IS y BGP. Quagga está estructurado en diferentes servicios (uno para cada protocolo) controlados por un servicio central (Zebra) que hace de interfaz entre la tabla de encaminamiento del kernel y la información de encaminamiento de cada protocolo.
+
+Todos los ficheros de configuración han de almacenarse en el directorio `/etc/quagga`. La sintaxis de estos ficheros es sencilla y está disponible en http://quagga.net. Revisar especialmente la correspondiente a RIP y BGP en https://www.quagga.net/docs/quagga.html. Además, en `/usr/share/doc/quagga-0.99.22.4` hay ficheros de ejemplo.
 
 **Contenidos**
 
@@ -18,7 +16,9 @@ La contraseña del usuario cursoredes es cursoredes.
 
 Configuraremos la topología de red que se muestra en la siguiente figura:
 
-
+<p align="center">
+    <img src="imagenes/Entorno.PNG">
+</p>
 
 Cada encaminador (Router1…Router4) tiene tres interfaces, cada uno conectado a una red diferente.
 
@@ -121,87 +121,78 @@ Copia los comandos usados y su salida.
       Configuration saved to /etc/quagga/ripd.conf
       localhost.localdomain# exit
 
-Nota: Para poder escribir la configuración en ripd.conf, el usuario quagga debe tener los permisos adecuados sobre el fichero. Para cambiar el propietario del fichero, ejecutar el comando chown quagga:quagga /etc/quagga/ripd.conf.
-Parte II. Protocolo exterior: BGP
-Preparación del entorno
+Nota: Para poder escribir la configuración en `ripd.conf`, el usuario quagga debe tener los permisos adecuados sobre el fichero. Para cambiar el propietario del fichero, ejecutar el comando `chown quagga:quagga /etc/quagga/ripd.conf`.
+
+## Parte II. Protocolo exterior: BGP
+
+**Preparación del entorno**
+
 Configuraremos la topología de red con 3 AS, siendo uno de ellos el proveedor de los otros dos:
+
+<p align="center">
+    <img src="imagenes/Entorno2.PNG">
+</p>
 
 Nota: El prefijo 2001:db8::/32 está reservado para documentación y ejemplos (RFC 3849).
 Crearemos esta topología (sin las redes internas de los AS) con la herramienta vtopol y el siguiente fichero:
-netprefix inet
-machine 1 0 0 
-machine 2 0 0 1 1
-machine 3 0 1
+
+        netprefix inet
+        machine 1 0 0 
+        machine 2 0 0 1 1
+        machine 3 0 1
 
 Para facilitar la configuración de las máquinas, la siguiente tabla muestra las direcciones de cada uno de los interfaces de los encaminadores:
-Máquina virtual
-Interfaz
-Dirección de red
-Dirección IP
-Router1
-eth0
-2001:db8:200:1::/64
-2001:db8:200:1::1
-Router2
-eth0
-eth1
-2001:db8:200:1::/64
-2001:db8:200:2::/64
-2001:db8:200:1::2
-2001:db8:200:2::2
-Router3
-eth0
-2001:db8:200:2::/64
-2001:db8:200:2::3
 
-Ejercicio 7. Configurar los encaminadores según se muestra en la figura anterior. Debe comprobarse la conectividad entre máquinas adyacentes.
+|   **Máquina virtual**  | **Interfaz** | **Dirección de red**  | **Dirección IP** |
+| ----------------- | --------------- | ---------------- | ---------------- |
+| Router 1 | eth0 | 2001:db8:200:1::/64 | 2001:db8:200:1::1 |
+| Router 2 | eth0 - eth1 | 2001:db8:200:1::/64 - 2001:db8:200:2::/64 | 2001:db8:200:1::1 - 2001:db8:200:2::2 |
+| Router 3 | eth0 | 2001:db8:200:1::/64 | 2001:db8:200:2::3 |
+
+
+**Ejercicio 7.** Configurar los encaminadores según se muestra en la figura anterior. Debe comprobarse la conectividad entre máquinas adyacentes.
+
 Configuración del protocolo BGP
-Ejercicio 8. Consultar la documentación de las clases de teoría para determinar el tipo de AS (stub, multihomed o transit ) y los prefijos de red que debe anunciar. Suponed que el RIR ha asignado a cada AS prefijos de longitud 48 y que los prefijos anunciados deben agregarse al máximo.
-Número de AS
-Tipo 
-Prefijos Agregados
+
+**Ejercicio 8.** Consultar la documentación de las clases de teoría para determinar el tipo de AS (`stub`, `multihomed` o `transit` ) y los prefijos de red que debe anunciar. Suponed que el RIR ha asignado a cada AS prefijos de longitud 48 y que los prefijos anunciados deben agregarse al máximo.
+
+
+|   **Número de AS**  | **Tipo** | **Prefijos Agregados**  |
+| ----------------- | --------------- | ---------------- |
+| AS100 | Stub | 2001:db8:100::/47 |
+| AS200 | Tránsito |  |
+| AS300 | Stub | 2001:db8:300::/47 |
 
 
 
+**Ejercicio 9.** Configurar BGP en los encaminadores para que intercambien información:
+Crear un fichero `bgpd.conf` en `/etc/quagga` usando como referencia el que se muestra a continuación.
+Iniciar el servicio BGP (y Zebra) con `service bgpd start`.
+Por ejemplo, el contenido del fichero `/etc/quagga/bgpd.conf` de Router1 en el AS 100 sería:
 
+        # Activar el encaminamiento BGP en el AS 100
+        router bgp 100
+         # Establecer el identificador de encaminador BGP
+         bgp router-id 0.0.0.1
+         # Añadir el encaminador BGP vecino en el AS 200
+         neighbor 2001:db8:200:1::2 remote-as 200
+         # Empezar a trabajar con direcciones IPv6
+         address-family ipv6
+          # Anunciar un prefijo de red agregado
+          network 2001:db8:100::/47
+          # Activar IPv6 en el encaminador BGP vecino
+          neighbor 2001:db8:200:1::2 activate
+         # Dejar de trabajar con direcciones IPv6
+         exit-address-family
+ 
+**Ejercicio 10.** Consultar la tabla de encaminamiento de BGP y de Zebra en cada encaminador con el comando `vtysh` (`sudo vtysh -c "show ipv6 bgp"` y `sudo vtysh -c "show ipv6 route"`). Comprobar también la tabla de encaminamiento de IPv6 con el comando `ip` (`ip -6 route`).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Ejercicio 9. Configurar BGP en los encaminadores para que intercambien información:
-Crear un fichero bgpd.conf en /etc/quagga usando como referencia el que se muestra a continuación.
-Iniciar el servicio BGP (y Zebra) con service bgpd start.
-Por ejemplo, el contenido del fichero /etc/quagga/bgpd.conf de Router1 en el AS 100 sería:
-# Activar el encaminamiento BGP en el AS 100
-router bgp 100
- # Establecer el identificador de encaminador BGP
- bgp router-id 0.0.0.1
- # Añadir el encaminador BGP vecino en el AS 200
- neighbor 2001:db8:200:1::2 remote-as 200
- # Empezar a trabajar con direcciones IPv6
- address-family ipv6
-  # Anunciar un prefijo de red agregado
-  network 2001:db8:100::/47
-  # Activar IPv6 en el encaminador BGP vecino
-  neighbor 2001:db8:200:1::2 activate
- # Dejar de trabajar con direcciones IPv6
- exit-address-family
-Ejercicio 10. Consultar la tabla de encaminamiento de BGP y de Zebra en cada encaminador con el comando vtysh (sudo vtysh -c "show ipv6 bgp" y sudo vtysh -c "show ipv6 route"). Comprobar también la tabla de encaminamiento de IPv6 con el comando ip (ip -6 route).
 Copia los comandos usados y su salida.
 
 
 
-Ejercicio 11. Con ayuda de la herramienta wireshark, estudiar los mensajes BGP intercambiados (OPEN, KEEPALIVE y UPDATE).
+**Ejercicio 11.** Con ayuda de la herramienta wireshark, estudiar los mensajes BGP intercambiados (`OPEN`, `KEEPALIVE` y `UPDATE`).
+
 Copia una captura de pantalla de Wireshark con mensajes BGP mostrando el formato del mensaje UPDATE.
 
 
